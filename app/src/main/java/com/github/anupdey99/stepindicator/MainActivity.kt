@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val pageList: MutableList<String> = MutableList(5) { index -> "$index" }
+        val pageList: MutableList<String> = MutableList(5) { index -> "$index+1" }
         dataAdapter.loadInitData(pageList)
 
         with(binding.viewPager) {
