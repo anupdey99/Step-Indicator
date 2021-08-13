@@ -17,25 +17,30 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val pageList: MutableList<String> = MutableList(5) { index -> "$index+1" }
+        val pageList: MutableList<String> = MutableList(5) { index -> "${index+1}" }
         dataAdapter.loadInitData(pageList)
 
         with(binding.viewPager) {
             adapter = dataAdapter
             offscreenPageLimit = 1
         }
+        binding.viewPager.currentItem = 3
 
         with(binding.stepIndicator) {
             this.isClickable = false
-            this.setStepsCount(pageList.size)
+            //this.setStepsCount(pageList.size)
+            this.setupWithViewPager2(binding.viewPager)
         }
 
-        binding.viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
+        //Manual setup
+        /*binding.viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 binding.stepIndicator.setCurrentStepPosition(position)
             }
-        })
+        })*/
+
+
 
     }
 }

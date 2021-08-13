@@ -11,6 +11,8 @@ import android.view.animation.AlphaAnimation
 import android.view.animation.LinearInterpolator
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
+import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.widget.ViewPager2
 import com.github.anupdey99.stepindicatorlib.R
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -54,8 +56,8 @@ class StepIndicator : View {
     private var startX = 0
     private var endX = 0
     private var stepDistance = 0
-    private val offset = 0f
-    private val offsetPixel = 0
+    private var offset = 0f
+    private var offsetPixel = 0
     private val pagerScrollState = 0
 
     private lateinit var paint: Paint
@@ -234,7 +236,7 @@ class StepIndicator : View {
             if (i < currentStepPosition) {
                 //draw previous step
                 paint.color = stepColor
-                canvas!!.drawCircle(pointX.toFloat(), centerY.toFloat(), radius.toFloat(), paint)
+                canvas.drawCircle(pointX.toFloat(), centerY.toFloat(), radius.toFloat(), paint)
 
                 //draw transition
                 if (i == currentStepPosition - 1 && offsetPixel < 0 && pagerScrollState == 1) {
@@ -359,4 +361,69 @@ class StepIndicator : View {
         return Color.HSVToColor(hsv)
     }
 
+    fun setupWithViewPager(viewPager: ViewPager) {
+        val adapter = viewPager.adapter ?: throw IllegalArgumentException("ViewPager does not have a PagerAdapter set")
+        setStepsCount(adapter.count)
+        viewPager.addOnPageChangeListener(viewPagerLister)
+
+        if (adapter.count > 0) {
+            val curItem = viewPager.currentItem;
+            if (getCurrentStepPosition() != curItem) {
+                setCurrentStepPosition(curItem)
+                invalidate()
+            }
+        }
+    }
+
+    fun unregisterViewPagerListener(viewPager: ViewPager?) {
+        viewPager?.removeOnPageChangeListener(viewPagerLister)
+    }
+
+    fun setupWithViewPager2(viewPager: ViewPager2) {
+        val adapter = viewPager.adapter ?: throw IllegalArgumentException("ViewPager does not have a PagerAdapter set")
+        setStepsCount(adapter.itemCount)
+        viewPager.registerOnPageChangeCallback(viewPager2Lister)
+
+        if (adapter.itemCount > 0) {
+            val curItem = viewPager.currentItem;
+            if (getCurrentStepPosition() != curItem) {
+                setCurrentStepPosition(curItem)
+                invalidate()
+            }
+        }
+    }
+
+    fun unregisterViewPager2Listener(viewPager: ViewPager2?) {
+        viewPager?.unregisterOnPageChangeCallback(viewPager2Lister)
+    }
+
+    private val viewPagerLister = object : ViewPager.OnPageChangeListener {
+        override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+            setOffset(positionOffset, position)
+        }
+
+        override fun onPageScrollStateChanged(state: Int) {}
+
+        override fun onPageSelected(position: Int) {
+            setCurrentStepPosition(position)
+        }
+    }
+
+    private val viewPager2Lister = object: ViewPager2.OnPageChangeCallback() {
+        override fun onPageSelected(position: Int) {
+            super.onPageSelected(position)
+            setCurrentStepPosition(position)
+        }
+    }
+
+    private fun setOffset(offset: Float, position: Int) {
+        this.offset = offset
+        offsetPixel = (stepDistance * offset).roundToInt()
+        if (currentStepPosition > position) {
+            offsetPixel -= stepDistance
+        } else {
+            currentStepPosition = position
+        }
+        invalidate()
+    }
 }
