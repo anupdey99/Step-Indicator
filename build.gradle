@@ -8,7 +8,12 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:7.0.0"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.17.0'
     }
+}
+
+ext {
+    versionName = '1.0.0'
 }
 
 task clean(type: Delete) {
